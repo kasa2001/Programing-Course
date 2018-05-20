@@ -73,10 +73,6 @@ class Server
             } else {
                 $config = new Config();
                 $config = $config->getConfig();
-                echo "<pre>";
-                print_r(isset($config["system"]["default-directory"])? '/' .$config["system"]["default-directory"] :'');
-                echo "</pre>";
-//                exit;
                 header("Location: " . isset($config["system"]["default-directory"])? '/' .$config["system"]["default-directory"] :''. "/home/index");
             }
         } else {
@@ -86,6 +82,7 @@ class Server
                 header("Location: " . $where);
             }
         }
+        die;
     }
 
     /**

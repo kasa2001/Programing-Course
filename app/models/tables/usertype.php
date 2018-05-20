@@ -2,7 +2,8 @@
 
 namespace Models\Tables;
 
-class Taxonomy
+
+class Usertype
 {
-    public $id;
+
 }

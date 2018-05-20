@@ -56,7 +56,7 @@ class URI
     {
         $matches = $get = [];
 
-        preg_match_all("/[^=|\/|?|&]*?[=|\/]([a-zA-Z]+)/A", $_SERVER['QUERY_STRING'], $matches);
+        preg_match_all("/[^=|\/|?|&]*?[=|\/]([a-zA-Z0-9]+)/A", $_SERVER['QUERY_STRING'], $matches);
         preg_match_all("/[^&]*?&([a-zA-Z]+)=([a-zA-Z0-9]+)/", $_SERVER['QUERY_STRING'], $get);
 
         for ($i = 0; $i < count($get[1]); $i++) {
@@ -67,7 +67,9 @@ class URI
         $this->method = isset($matches[1][1]) ? $matches[1][1] : 'index';
         unset($matches[1][0], $matches[1][1]);
 
-        $this->params = !empty($matches[1]) ? $matches[1] : [];
+        foreach ($matches [1] as $param) {
+            array_push($this->params, $param);
+        }
 
         $this->scheme = $_SERVER["REQUEST_SCHEME"] . "://";
         $this->host = $_SERVER["HTTP_HOST"];

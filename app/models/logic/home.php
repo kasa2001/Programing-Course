@@ -2,51 +2,38 @@
 
 namespace Models\Logic;
 
+
 use Core\Database;
-use Models\Tables\Taxonomy;
-use Models\Tables\User;
 
 class Home
 {
 
-    public function getItems()
+    public function getCourse(int $id)
     {
-        $database = new Database();
-        $user = new User();
-        $alamakota = new Taxonomy();
+        $database =  new Database();
 
-        $database
-            ->select([
-                new class {
-        private $id;
-                },
-                $alamakota
-            ])
-            ->from(array($user, $alamakota))
-            ->where(function () use ($user, $alamakota) {
-                return $user->id < $alamakota->id and ($user->id >= $alamakota->id or $user->id != $alamakota->id);
-            });
+        $query = "SELECT this.id, category.name, employer.nick AS employer " .
+                  "FROM `course` AS this " .
+                  "INNER JOIN `category` AS category ON this.idcategory = category.id " .
+                  "INNER JOIN `user` as employer ON this.idemployer = employer.id " .
+                  "WHERE `category`.id = $id " .
+                  "GROUP  BY this.id";
+        $database->execute($query);
 
+        return $database->loadArray();
     }
 
-    public function login($login, $password)
+    public function getCourses()
     {
-        $database = new Database();
+        $database =  new Database();
 
-        $user = new User();
+        $query = "SELECT this.id, category.name, employer.nick AS employer " .
+            "FROM `course` AS this " .
+            "INNER JOIN `category` AS category ON this.idcategory = category.id " .
+            "INNER JOIN `user` as employer ON this.idemployer = employer.id " .
+            "GROUP  BY this.id";
 
-
-        $database
-            ->select(new class{
-        private $id;
-        private $nick;
-        private $password;
-            })
-            ->from($user)
-            ->where(function () use ($user, $login, $password) {
-                return $user->nick == $login && $user->password == $password;
-            })
-            ->execute();
+        $database->execute($query);
 
         return $database->loadArray();
     }

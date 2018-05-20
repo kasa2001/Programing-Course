@@ -1,10 +1,14 @@
 <main class="main">
     <h1 class="title">Rejestracja</h1>
 
-    <?= $this->startForm("user/index") ?>
-    <label for="name">
+    <?= $this->startForm("user/confirm") ?>
+    <label for="nick">
         Nazwa użytkownika:
-        <input name="name" type="text">
+        <input name="nick" type="text">
+    </label>
+    <label for="email">
+        Email:
+        <input name="email" type="email">
     </label>
     <label for="password">
         Hasło:

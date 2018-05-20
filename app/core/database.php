@@ -123,7 +123,10 @@ class Database extends Config
      * */
     public function loadArray()
     {
-        return $this->data->fetch(\PDO::FETCH_ASSOC);
+        if ($this->data->rowCount() < 2)
+            return $this->data->fetch(\PDO::FETCH_ASSOC);
+        else
+            return $this->data->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
