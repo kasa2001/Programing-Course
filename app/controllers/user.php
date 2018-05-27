@@ -30,14 +30,19 @@ class User extends Controller
         $user->setNick($post->nick);
         $user->setEmail($post->email);
         $user->setPassword($post->password);
-        $user->setType(0);
+        $user->setType(1);
 
         $model = new \Models\Logic\User();
         $model->registry($user);
 
         $server = Server::getInstance();
-        //REDIRECT !!!
-        $server->redirect(204);
+
+        $server->redirect(300);
+    }
+
+    public function add($params)
+    {
+        //$id =
     }
 
     public function listing()

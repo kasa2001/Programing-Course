@@ -4,6 +4,7 @@ namespace Models\Logic;
 
 
 use Core\Database;
+use Core\DatabaseNullException;
 use Models\Tables\Category;
 
 class User
@@ -30,15 +31,18 @@ class User
 
     public function registry(\Models\Tables\User $user)
     {
-        if (!empty($this->login($user->nick, $user->password))) {
-            throw new \Exception("Page not fount","404");
+        try {
+            $this->login($user->nick, $user->password);
+            return true;
+        } catch (DatabaseNullException $e) {
+            $database = new Database();
+
+            $query = "INSERT INTO `user` value ('','$user->nick', '$user->password', '$user->email', '$user->type')";
+
+            $database->execute($query);
+
+            return false;
         }
-
-        $database = new Database();
-
-        $query = "INSERT INTO `user` value ('','$user->nick', '$user->password', '$user->email', '$user->type')";
-
-        $database->execute($query);
     }
 
     public function getCourse()

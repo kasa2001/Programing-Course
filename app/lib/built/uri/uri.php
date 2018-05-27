@@ -3,6 +3,7 @@
 namespace Lib\Built\URI;
 
 use Core\Router;
+use Lib\Built\Get\Get;
 
 class URI
 {
@@ -43,6 +44,8 @@ class URI
      */
     private $get;
 
+    private $dir;
+
     private $controller;
 
     private $method;
@@ -54,35 +57,41 @@ class URI
      * */
     public function __construct()
     {
-        $matches = $get = [];
+        $this->dir = dirname($_SERVER['SCRIPT_NAME']);
 
-        preg_match_all("/[^=|\/|?|&]*?[=|\/]([a-zA-Z0-9]+)/A", $_SERVER['QUERY_STRING'], $matches);
-        preg_match_all("/[^&]*?&([a-zA-Z]+)=([a-zA-Z0-9]+)/", $_SERVER['QUERY_STRING'], $get);
+        $this->get = new Get();
 
-        for ($i = 0; $i < count($get[1]); $i++) {
-            $this->get[$get[1][$i]] = $get[2][$i];
-        }
+        $matches = explode(
+            "/",
+            preg_split(
+                "/\\". $this->dir . "\//" ,
+                explode(
+                    "?",
+                    $_SERVER['REQUEST_URI']
+                )[0]
+            )[1]
+        );
 
-        $this->controller = isset($matches[1][0]) ? $matches[1][0] : 'home';
-        $this->method = isset($matches[1][1]) ? $matches[1][1] : 'index';
-        unset($matches[1][0], $matches[1][1]);
+        $this->controller = !empty($matches[0]) ? $matches[0] : 'home';
+        $this->method = !empty($matches[1]) ? $matches[1] : 'index';
 
-        foreach ($matches [1] as $param) {
+        unset($matches[0], $matches[1]);
+
+        foreach ($matches as $param) {
             array_push($this->params, $param);
         }
 
         $this->scheme = $_SERVER["REQUEST_SCHEME"] . "://";
         $this->host = $_SERVER["HTTP_HOST"];
 
-        // REQUEST URI TODO
         $this->requestURI = '/' . $this->controller . '/' . $this->method;
 
         if (!empty($this->params)) {
             $this->requestURI .= '/' . implode('/', $this->params);
         }
 
-        $this->base = $this->scheme . $this->host;
-        $this->address = $this->base . $this->requestURI;
+        $this->base = $this->scheme . $this->host . $this->dir;
+        $this->address = $this->base . $this->dir . $this->requestURI;
 
         self::$object = $this;
 
@@ -158,39 +167,19 @@ class URI
         return $this->get[$key];
     }
 
-
-
-
     /**
      * Method prepare link to pagination
      * @return string
      */
     public function toPagination()
     {
-        $data = explode("/", $this->requestURI);
-        $how = count($data);
-        for ($i = 0; $i < $how; $i++) {
-            if (is_numeric($data[$i]) || $data[$i]=='all' || strlen($data[$i]) == 0) {
-                unset($data[$i]);
-            }
-        }
 
-        if ((isset($this->config["system"]["default-directory"]) && $how < 5)
-            || (!isset($this->config["system"]["default-directory"]) && $how < 4)) {
-            $router = Router::getInstance(null);
-            $data = array_merge($data, explode('/', $router->checkRoute('home/index')));
-        }
 
-        return implode("/", $data) . "/";
+        return $this->base . $this->controller. $this->method;
     }
 
     public function getCurrentPage()
     {
-        $data = explode("/", $this->requestURI);
-        if (is_numeric($data[(count($data)-1)])) {
-            return $data[(count($data)-1)];
-        } else {
-            return 0;
-        }
+        return $this->address;
     }
 }

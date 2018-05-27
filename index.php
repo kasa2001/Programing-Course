@@ -5,5 +5,5 @@ try {
     $app = new Core\App();
     $app->render();
 } catch (Exception $e) {
-    echo $e->getCode();
+    echo $e->getMessage();
 }

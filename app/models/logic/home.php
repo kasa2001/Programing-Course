@@ -8,7 +8,12 @@ use Core\Database;
 class Home
 {
 
-    public function getCourse(int $id)
+    /**
+     * @param $id int
+     * @return array
+     * @throws \Core\DatabaseNullException
+     * */
+    public function getCourse(int $id): array
     {
         $database =  new Database();
 
@@ -17,13 +22,14 @@ class Home
                   "INNER JOIN `category` AS category ON this.idcategory = category.id " .
                   "INNER JOIN `user` as employer ON this.idemployer = employer.id " .
                   "WHERE `category`.id = $id " .
-                  "GROUP  BY this.id";
+                  "GROUP  BY this.id " .
+                  "ORDER BY this.id ASC";
         $database->execute($query);
 
         return $database->loadArray();
     }
 
-    public function getCourses()
+    public function getCourses() : array
     {
         $database =  new Database();
 

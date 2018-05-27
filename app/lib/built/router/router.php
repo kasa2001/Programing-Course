@@ -12,12 +12,16 @@ class Router
 {
     private $class;
     private $method;
+
+    /**
+     * @var array | boolean
+     */
     private $params;
 
     public function __construct($class, $method, $params = false)
     {
         $this->method = $method;
-        $this->class = 'Controllers\\' . $class;
+        $this->class = $class;
         $this->params = $params;
     }
 
@@ -43,7 +47,8 @@ class Router
      * */
     public function execute()
     {
-        $reflection = new \ReflectionMethod($this->class, $this->method);
-        $reflection->invoke(new $this->class, $this->params);
+        $class = 'Controllers\\' . $this->class;
+        $reflection = new \ReflectionMethod($class, $this->method);
+        $reflection->invoke(new $class, $this->params);
     }
 }

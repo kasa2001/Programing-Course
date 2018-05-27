@@ -120,13 +120,15 @@ class Database extends Config
     /**
      * Method get data from Database class to array
      * @return array
+     * @throws DatabaseNullException if not result in PDOStatement
      * */
     public function loadArray()
     {
-        if ($this->data->rowCount() < 2)
+        if ($this->data->rowCount() == 1)
             return $this->data->fetch(\PDO::FETCH_ASSOC);
-        else
+        else if ($this->data->rowCount() > 1)
             return $this->data->fetchAll(\PDO::FETCH_ASSOC);
+        else throw new DatabaseNullException("Brak danych", 500);
     }
 
     /**

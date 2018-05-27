@@ -1,1 +1,1 @@
-<?php
+<?= $this->importElement('course', 'home', $data) ?>

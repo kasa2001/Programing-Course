@@ -150,24 +150,22 @@ class View
      * */
     public function buildLink($name, $data, $class = null, $target = null, $relation = null)
     {
-        $html = '<a href="' . $this->uri->getBase() . (!empty($this->config["system"]["default-directory"])? '/'. $this->config["system"]["default-directory"] . '/':'/') . $data . '"';
+        $html = '<a href="' . $this->uri->getBase() . '/' . $data . '"';
 
         if (!empty($class)) {
             $html .= 'class="';
-
-            for ($i = 0; $i < count($class); $i++) {
-                $html .= $class[$i] . " ";
-            }
-
+            $html .= implode(" ", $class);
             $html .= '"';
         }
 
         if ($target != null) {
             $html .= ' target=" '. $target . '"';
         }
+
         if ($relation != null) {
             $html .= ' relation=" '. $relation . '"';
         }
+
         $html .= '>' . $name . '</a>';
 
         return $html;
@@ -185,7 +183,7 @@ class View
         if ($action == null) {
             $html .= '>';
         } else {
-            $html .= ' action="' . $this->uri->getBase() . (!empty($this->config["system"]["default-directory"])? '/' . $this->config["system"]["default-directory"] . '/':'') . $action . '">';
+            $html .= ' action="' . $this->uri->getBase() . '/' . $action . '">';
         }
         return $html;
     }

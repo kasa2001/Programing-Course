@@ -5,9 +5,8 @@ namespace Lib\Built\Server;
 /**
  * todo!!!
  * */
-use Core\Config;
 use Lib\Built\Factory\Factory;
-use Controllers\Home;
+use Lib\Built\Router\Router;
 
 class Server
 {
@@ -68,12 +67,13 @@ class Server
     {
         if ($where === null) {
             if ($code > 399) {
-                $this->_setError($code);
-                $this->_loadErrorPage($message);
+                $this->setError($code);
+                $this->loadErrorPage($message, $code);
             } else {
-                $config = new Config();
-                $config = $config->getConfig();
-                header("Location: " . isset($config["system"]["default-directory"])? '/' .$config["system"]["default-directory"] :''. "/home/index");
+
+                $router = new Router("home", "index");
+
+                header("Location: " . $router->renderRoute());
             }
         } else {
             if ($code > 199 && $code < 400) {
@@ -89,7 +89,7 @@ class Server
      * Method set redirect error
      * @param $code int
      * */
-    protected function _setError($code)
+    protected function setError($code)
     {
         switch ($code) {
             case 404:
@@ -126,8 +126,17 @@ class Server
         return $_SERVER['REDIRECT_STATUS'];
     }
 
-    protected function _loadErrorPage($message)
+    protected function loadErrorPage($message, $status)
     {
-        call_user_func_array(array(new Home(), "error"), array($message));
+        $router = new Router(
+            "Home",
+            "error",
+            [
+                "status" => $status,
+                "message" => $message
+            ]
+        );
+
+        $router->execute();
     }
 }
