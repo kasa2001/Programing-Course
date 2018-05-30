@@ -6,6 +6,7 @@ namespace Models\Logic;
 use Core\Database;
 use Core\DatabaseNullException;
 use Models\Tables\Category;
+use Models\Tables\Usercourse;
 
 class User
 {
@@ -59,6 +60,38 @@ class User
 
     public function getUserCourse()
     {
+
+    }
+
+    public function isSavedToCourse(int $id, \Models\Tables\User $user)
+    {
+        $temp = $user->id;
+        $usercourse = new Usercourse();
+        $database = new Database();
+        $database->select(new class {
+            private $id;
+        })
+            ->from(new Usercourse())
+            ->where(function() use ($id, $temp, $usercourse) {
+                return $usercourse->iduser == $temp && $usercourse->idcourse == $id;
+            });
+        $database->execute();
+        return !$database->isEmpty();
+    }
+
+    public function addToCourse(int $id, \Models\Tables\User $user)
+    {
+
+        if ($this->isSavedToCourse($id, $user)) {
+            throw new \LogicException("Zostałeś zapisany wcześniej", 400);
+        }
+
+        $query = "INSERT INTO `usercourse` value('', $user->id, $id)";
+
+        $database = new Database();
+        $database->execute($query);
+
+        return $database->checkResult();
 
     }
 }

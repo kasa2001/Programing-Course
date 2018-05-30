@@ -2,7 +2,6 @@
 
 namespace Lib\Built\URI;
 
-use Core\Router;
 use Lib\Built\Get\Get;
 
 class URI
@@ -173,7 +172,6 @@ class URI
      */
     public function toPagination()
     {
-
 
         return $this->base . $this->controller. $this->method;
     }

@@ -4,8 +4,10 @@ namespace Controllers;
 
 
 use Core\Controller;
+use Lib\Built\Factory\Factory;
 use Lib\Built\Post\Post;
 use Lib\Built\Server\Server;
+use Lib\Built\Session\SessionException;
 use Lib\Built\View\View;
 
 class User extends Controller
@@ -42,7 +44,21 @@ class User extends Controller
 
     public function add($params)
     {
-        //$id =
+        try {
+            $session = Factory::getSession();
+
+            $user = new \Models\Tables\User();
+            $user->setId($session->getDataWithSession('id'));
+        } catch (SessionException $e) {
+            $server = Server::getInstance();
+
+            $server->redirect(403, null, "Forbidden");
+        } finally {
+            $id = $params[0];
+            $model = new \Models\Logic\User();
+            $model->addToCourse($id, $user);
+        }
+
     }
 
     public function listing()

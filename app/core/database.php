@@ -229,6 +229,11 @@ class Database extends Config
         }
     }
 
+    public function checkResult()
+    {
+        return $this->data;
+    }
+
     /*
      * Methods TODO
      * */
@@ -250,7 +255,6 @@ class Database extends Config
                 } else {
                     throw new DatabaseException("Internal Server Error", 500);
                 }
-
             }
 
         } elseif (is_object($object)) {

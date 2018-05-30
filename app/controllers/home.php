@@ -50,8 +50,6 @@ class Home extends Controller
             $data['courses'] = $model->getCourse($params[0]);
 
         } catch (SessionException $e) {
-
-            $data['user'] = false;
             $server = Server::getInstance();
 
             $server->redirect(403, null, "Forbidden");

@@ -6,6 +6,6 @@ namespace Models\Tables;
 class Usercourse
 {
     public $id;
-    public $idemployer;
-    public $idcategory;
+    public $iduser;
+    public $idcourse;
 }
