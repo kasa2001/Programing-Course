@@ -58,9 +58,13 @@ class User
         return $database->loadArray();
     }
 
-    public function getUserCourse()
+    public function getUserCourse(\Models\Tables\User $user)
     {
+        $query = "SELECT `this`.`name`, `course`.`id` FROM `category` as `this` INNER JOIN `course` AS `course` ON `this`.`id` = `course`.`idcategory` INNER JOIN `usercourse` AS `uscourse` ON `course`.`id` = `uscourse`.`idcourse` WHERE `uscourse`.`iduser` = $user->id";
 
+        $database = new Database();
+        $database->execute($query);
+        return $database->loadArray();
     }
 
     public function isSavedToCourse(int $id, \Models\Tables\User $user)

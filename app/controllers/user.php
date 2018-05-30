@@ -61,9 +61,21 @@ class User extends Controller
 
     }
 
-    public function listing()
+    public function answer()
     {
 
+    }
+
+    public function listing()
+    {
+        $model = new \Models\Logic\User();
+        $table = new \Models\Tables\User();
+        $session = Factory::getSession();
+        $table->setId($session->getDataWithSession('id'));
+        $courses = $model->getUserCourse($table);
+        echo "<pre>";
+        print_r($courses);
+        echo "</pre>";
     }
 
     public function index()
