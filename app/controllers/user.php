@@ -71,7 +71,12 @@ class User extends Controller
         $model = new \Models\Logic\User();
         $table = new \Models\Tables\User();
         $session = Factory::getSession();
-        $table->setId($session->getDataWithSession('id'));
+        try {
+            $table->setId($session->getDataWithSession('id'));
+        } catch (SessionException $e) {
+            $server = Server::getInstance();
+            $server->redirect(403, "Forbidden");
+        }
         $courses = $model->getUserCourse($table);
         echo "<pre>";
         print_r($courses);
@@ -124,6 +129,16 @@ class User extends Controller
     }
 
     public function addAnswer()
+    {
+
+    }
+
+    public function removeCourse()
+    {
+
+    }
+
+    public function removeQuestion()
     {
 
     }
