@@ -76,10 +76,15 @@ class Server
                 header("Location: " . $router->renderRoute());
             }
         } else {
-            if ($code > 199 && $code < 400) {
-                header("Location: " . $where, true, $code);
+
+            $array = explode("/", $where);
+
+            $router = new Router($array[0], $array[1]);
+
+            if ($code > 299 && $code < 400) {
+                header("Location: " . $router->renderRoute(), true, $code);
             } else {
-                header("Location: " . $where);
+                header("Location: " . $router->renderRoute());
             }
         }
         die;

@@ -9,7 +9,7 @@ class Security
      * @param $data string
      * @return string/null
      * */
-    public static function slashSQLString($data)
+    public static function slashSQLString($data) : string
     {
         return addslashes($data);
     }

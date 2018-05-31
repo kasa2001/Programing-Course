@@ -22,6 +22,7 @@ class Home extends Controller
         try {
             $user = $model->login($post->name, $post->password);
             $session->writeToSession($user);
+            $data['user'] = $user['id'];
         } catch (PostException $e) {
             try {
                 $data['user'] = (int) $session->getDataWithSession("id");

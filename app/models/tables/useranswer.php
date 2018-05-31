@@ -9,4 +9,5 @@ class Useranswer
     public $idcourse;
     public $idquestion;
     public $idanswer;
+    public $code;
 }

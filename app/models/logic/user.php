@@ -5,6 +5,8 @@ namespace Models\Logic;
 
 use Core\Database;
 use Core\DatabaseNullException;
+use Lib\Built\Security\Security;
+use Models\Tables\Answer;
 use Models\Tables\Category;
 use Models\Tables\Usercourse;
 
@@ -60,11 +62,52 @@ class User
 
     public function getUserCourse(\Models\Tables\User $user)
     {
-        $query = "SELECT `this`.`name`, `course`.`id` FROM `category` as `this` INNER JOIN `course` AS `course` ON `this`.`id` = `course`.`idcategory` INNER JOIN `usercourse` AS `uscourse` ON `course`.`id` = `uscourse`.`idcourse` WHERE `uscourse`.`iduser` = $user->id";
+        $query = "SELECT `this`.`name`, `course`.`id`, `uscourse`.`datejoin` FROM `category` as `this` INNER JOIN `course` AS `course` ON `this`.`id` = `course`.`idcategory` INNER JOIN `usercourse` AS `uscourse` ON `course`.`id` = `uscourse`.`idcourse` WHERE `uscourse`.`iduser` = $user->id";
 
         $database = new Database();
         $database->execute($query);
         return $database->loadArray();
+    }
+
+    public function getAnswers($id)
+    {
+        $answer = new Answer();
+        $database = new Database();
+        $database->select($answer)
+            ->from($answer)
+            ->where(function() use ($answer, $id) {
+                return $answer->idquestion == $id;
+            })
+            ->execute();
+        if ($database->countRecords() > 1)
+            return $database->loadArray();
+        else if ($database->countRecords() == 1){
+            $data = [
+                $database->loadArray()
+            ];
+            return $data;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @throws DatabaseNullException
+     * */
+    public function getQuestion($id, $limit)
+    {
+        $query = "SELECT `id`, `quest` FROM `question` WHERE `idcourse` = $id LIMIT $limit,1";
+
+        $database = new Database();
+        $database->execute($query);
+        $question = $database->loadArray();
+        $data = [
+            'question' => $question,
+            'answers' => $this->getAnswers($question['id']),
+            'next' => ++$limit,
+            'courseid' => $id
+        ];
+        return $data;
     }
 
     public function isSavedToCourse(int $id, \Models\Tables\User $user)
@@ -90,12 +133,30 @@ class User
             throw new \LogicException("Zostałeś zapisany wcześniej", 400);
         }
 
-        $query = "INSERT INTO `usercourse` value('', $user->id, $id)";
+        $query = "INSERT INTO `usercourse` value('', $user->id, $id, NOW(), null)";
 
         $database = new Database();
         $database->execute($query);
 
         return $database->checkResult();
 
+    }
+
+    public function saveAnswer(int $idcourse, int $idquestion, $answer, \Models\Tables\User $user)
+    {
+        if (is_numeric($answer)) {
+            $query = "INSERT INTO `useranswer` (`idcourse`, `idquestion`, `idanswer`, `iduser`) VALUE($idcourse, $idquestion, $answer, $user->id)";
+        } else {
+            $answer = Security::slashSQLString($answer);
+            $query = "INSERT INTO `useranswer` (`idcourse`, `idquestion`, `code`, `iduser`) VALUE($idcourse, $idquestion, '$answer', $user->id)";
+        }
+        echo $query;
+        $database = new Database();
+        $database->execute($query);
+    }
+
+    public function addQuestion($id)
+    {
+        $query = "INSERT INTO `question` VALUE()";
     }
 }

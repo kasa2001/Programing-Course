@@ -7,7 +7,7 @@
     <?= $seo->addBasePage(); ?>
     <?=$this->loadTitle();?>
     <?=$this->loadCharset();?>
-    <?=$seo->addDescription("Strona testowa frameworka");?>
+    <?=$seo->addDescription("Kurs programowania");?>
     <?=$seo->addRobotsFollow(true);?>
     <?=$seo->addCanonicalLink();?>
     <?=$seo->addLanguageLink(array("pl"));?>

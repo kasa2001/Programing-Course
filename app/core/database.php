@@ -216,6 +216,11 @@ class Database extends Config
         return $this->data->rowCount() == 0;
     }
 
+    public function countRecords()
+    {
+        return $this->data->rowCount();
+    }
+
     /**
      * Method execute query
      * @param $query string

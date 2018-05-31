@@ -4,8 +4,10 @@ namespace Controllers;
 
 
 use Core\Controller;
+use Core\DatabaseNullException;
 use Lib\Built\Factory\Factory;
 use Lib\Built\Post\Post;
+use Lib\Built\Post\PostException;
 use Lib\Built\Server\Server;
 use Lib\Built\Session\SessionException;
 use Lib\Built\View\View;
@@ -61,9 +63,41 @@ class User extends Controller
 
     }
 
-    public function answer()
+    public function answer($params)
     {
+        $id = $params[0];
+        $model = new \Models\Logic\User();
+        $session = Factory::getSession();
+        $user = new \Models\Tables\User();
+        try {
+            $user->setId($session->getDataWithSession('id'));
+            if (isset($params[1])) {
+                $limit = $params[1];
+                $post = new Post();
+                $model->saveAnswer($id, $post->idquestion, $post->answer, $user);
+            } else {
+                $limit = 0;
+            }
 
+            $this->view = View::getInstance();
+
+            $data = $model->getQuestion($id, $limit);
+            $this->view->display("user/answer", $data);
+        } catch (DatabaseNullException $e) {
+            $this->view->display('user/end');
+        } catch (SessionException | PostException $e) {
+            $server = Server::getInstance();
+            $server->redirect(403, null, "Forbidden");
+        }
+
+    }
+
+    public function logout()
+    {
+        $session = Factory::getSession();
+        $session->destroySession();
+        $server = Server::getInstance();
+        $server->redirect(200, "home/index", "OK");
     }
 
     public function listing()
@@ -77,25 +111,29 @@ class User extends Controller
             $server = Server::getInstance();
             $server->redirect(403, "Forbidden");
         }
+
         $courses = $model->getUserCourse($table);
-        echo "<pre>";
-        print_r($courses);
-        echo "</pre>";
+        $this->view = View::getInstance();
+
+        $data = [
+            'courses' => $courses
+        ];
+
+        $this->view->display("user/listing", $data);
     }
 
-    public function index()
+    public function course($params)
     {
-
-    }
-
-    public function course()
-    {
-
-    }
-
-    public function selectCourse()
-    {
-
+        $id = $params[0];
+        $session = Factory::getSession();
+        $table = new \Models\Tables\User();
+        $model = new \Models\Logic\User();
+        try {
+            $table->setId($session->getDataWithSession('id'));
+        } catch (SessionException $e) {
+            $server = Server::getInstance();
+            $server->redirect(403, "Forbidden");
+        }
     }
 
     public function checkCourse()

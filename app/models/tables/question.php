@@ -7,7 +7,7 @@ namespace Models\Tables;
 class Question
 {
     public $id;
-    public $idcategory;
-    public $typecategory;
+    public $idcourse;
     public $quest;
+    public $datecreated;
 }
