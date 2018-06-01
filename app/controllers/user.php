@@ -41,7 +41,7 @@ class User extends Controller
 
         $server = Server::getInstance();
 
-        $server->redirect(300);
+        $server->redirect(204);
     }
 
     public function add($params)
@@ -51,6 +51,7 @@ class User extends Controller
 
             $user = new \Models\Tables\User();
             $user->setId($session->getDataWithSession('id'));
+            $user->setType($session->getDataWithSession('type'));
         } catch (SessionException $e) {
             $server = Server::getInstance();
 
@@ -82,9 +83,15 @@ class User extends Controller
             $this->view = View::getInstance();
 
             $data = $model->getQuestion($id, $limit);
+            if ($model->isAsked($id, $user, $data['question']['id']))
+                throw new \Exception("Odpowiedziałeś już na pytania", 403);
             $this->view->display("user/answer", $data);
         } catch (DatabaseNullException $e) {
-            $this->view->display('user/end');
+            if ($limit == 0) {
+                $this->view->display('user/not');
+            } else {
+                $this->view->display('user/end');
+            }
         } catch (SessionException | PostException $e) {
             $server = Server::getInstance();
             $server->redirect(403, null, "Forbidden");
@@ -143,7 +150,17 @@ class User extends Controller
 
     public function addCourse()
     {
+        try {
 
+            if ($this->session->getDataWithSession('type')  < 1) {
+                $this->server->redirect(403, null, "Forbidden");
+            }
+
+        } catch (SessionException $e) {
+            $this->server->redirect(403, null, "Forbidden");
+        }
+
+        $this->view->display('user/addcourse');
     }
 
     public function changeTypeUser()

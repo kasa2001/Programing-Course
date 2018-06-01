@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use Lib\Built\Factory\Factory;
 use Lib\Built\Server\Server;
 use Lib\Built\View\View;
 use Models;
@@ -17,6 +18,14 @@ class Controller extends Config
      * @var $server Server
      * */
     protected $server;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->session = Factory::getSession();
+        $this->server = Server::getInstance();
+        $this->view = View::getInstance();
+    }
 
     /**
      * Method where add model and connect whit database if exists $_POST

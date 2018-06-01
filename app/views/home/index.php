@@ -1,6 +1,6 @@
 <?php
 if ($data['user'])
-    $this->importElement("header-logged");
+    $this->importElement('header-logged', 'default', $data);
 else
     $this->importElement('header');
 $this->importElement("nav-bar");

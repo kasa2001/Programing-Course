@@ -4,15 +4,21 @@ namespace Models\Logic;
 
 
 use Core\Database;
+use Core\DatabaseException;
 use Core\DatabaseNullException;
 use Lib\Built\Security\Security;
 use Models\Tables\Answer;
 use Models\Tables\Category;
+use Models\Tables\Useranswer;
 use Models\Tables\Usercourse;
 
 class User
 {
-
+    /**
+     * @throws DatabaseNullException
+     * @throws \ReflectionException
+     * @throws DatabaseException
+     * */
     public function login($name, $password)
     {
         $database = new Database();
@@ -22,7 +28,7 @@ class User
             ->select(new class{
                 private $id;
                 private $nick;
-                private $password;
+                private $type;
             })
             ->from(new \Models\Tables\User())
             ->where(function() use ($user, $name, $password) {
@@ -107,8 +113,26 @@ class User
             'next' => ++$limit,
             'courseid' => $id
         ];
+
+
         return $data;
     }
+
+    public function isAsked(int $idcourse,\Models\Tables\User $user, int $idquestion)
+    {
+        $userid = $user->id;
+        $useranswer = new Useranswer();
+        $database = new Database();
+        $database->select($useranswer)
+            ->from($useranswer)
+            ->where(function() use($userid, $idquestion, $idcourse, $useranswer) {
+                return $useranswer->iduser == $userid && $useranswer->idquestion == $idquestion && $useranswer->idcourse == $idcourse;
+            })
+            ->execute();
+
+        return !$database->isEmpty();
+    }
+
 
     public function isSavedToCourse(int $id, \Models\Tables\User $user)
     {
@@ -150,7 +174,7 @@ class User
             $answer = Security::slashSQLString($answer);
             $query = "INSERT INTO `useranswer` (`idcourse`, `idquestion`, `code`, `iduser`) VALUE($idcourse, $idquestion, '$answer', $user->id)";
         }
-        echo $query;
+
         $database = new Database();
         $database->execute($query);
     }
