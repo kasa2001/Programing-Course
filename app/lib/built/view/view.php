@@ -115,7 +115,7 @@ class View
     public function loadTitle($title = null)
     {
         if ($title == null) {
-            return '<title>' . $this->config["system"]["default-title"] . '</title>';
+            return '<title>Kurs</title>';
         } else {
             return '<title>' . $title . '</title>';
         }
