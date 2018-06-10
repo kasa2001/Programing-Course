@@ -11,6 +11,7 @@ use Models\Tables\Answer;
 use Models\Tables\Category;
 use Models\Tables\Useranswer;
 use Models\Tables\Usercourse;
+use Models\Tables\Usertype;
 
 class User
 {
@@ -54,6 +55,58 @@ class User
         }
     }
 
+    public function getReport(string $type, $date)
+    {
+        $type = strtoupper($type);
+        $query = "SELECT this.id, employee.nick, `user`.`nick` as usnick, this.datejoin FROM  `usercourse` as this INNER JOIN `user` on `this`.`iduser` = `user`.`id` INNER JOIN course as c on this.idcourse = c.id INNER JOIN `user` as`employee` ON c.idemployer  = employee.id where $type(`this`.`datejoin`) = $date";
+        $database = new Database();
+        $database->execute($query);
+
+        return $database->loadArray();
+
+    }
+
+    public function getUser($id)
+    {
+        $database = new Database();
+        $user = new \Models\Tables\User();
+
+        $database->select(new class {
+            private $id;
+            private $nick;
+            private $type;
+        })
+            ->from($user)
+            ->where (function() use($user, $id) {
+                return $user->id == $id ;
+            })
+            ->execute();
+
+        return $database->loadArray();
+    }
+
+    public function change($id, $nick, $type)
+    {
+        $query = "UPDATE `user` SET nick = '$nick', type = $type WHERE id = $id";
+
+        $database = new Database();
+        $database->execute($query);
+
+        return false;
+    }
+
+    public function getParams()
+    {
+        $database = new Database();
+        $type = new Usertype();
+
+        $database->select($type)
+            ->from($type)
+            ->execute();
+
+        return $database->loadArray();
+    }
+
     public function getCourse()
     {
         $category = new Category();
@@ -64,6 +117,34 @@ class User
             ->execute();
 
         return $database->loadArray();
+    }
+
+    public function removeUser($id)
+    {
+        $user = "DELETE FROM `user` WHERE id = $id";
+        $usercourse = "DELETE FROM `usercourse` where iduser = $id";
+        $useranswer = "DELETE FROM `useranswer` where iduser = $id";
+        $course = "DELETE FROM `course` where idemployer = $id";
+        $question = "DELETE FROM `question` INNER JOIN `course` on `course`.id = `question`.idcourse WHERE course.idemployer = $id";
+        $answer = "DELETE FROM `answer` INNER JOIN `question` on `answer`.idquestion = `question`.id INNER JOIN `course` on `course`.id = `question`.idcourse WHERE course.idemployer = $id";
+
+        $database = new Database();
+
+        $database->execute($answer);
+        $database->execute($question);
+        $database->execute($useranswer);
+        $database->execute($usercourse);
+        $database->execute($user);
+        $database->execute($course);
+
+    }
+
+    public function addCategory(string $name)
+    {
+        $query = "INSERT INTO `category` VALUE(null, '$name')";
+        $database = new Database();
+        echo $query;
+        $database->execute($query);
     }
 
     public function getUserCourse(\Models\Tables\User $user)
@@ -97,6 +178,20 @@ class User
         }
     }
 
+
+    public function getUsers()
+    {
+        $database = new Database();
+
+        $database->select(new class {
+            private $id;
+            private $nick;
+        })
+            ->from(new \Models\Tables\User())
+            ->execute();
+
+        return $database->loadArray();
+    }
     /**
      * @throws DatabaseNullException
      * */
@@ -179,8 +274,28 @@ class User
         $database->execute($query);
     }
 
-    public function addQuestion($id)
+    public function addAnswer($id, $answer, $good)
     {
-        $query = "INSERT INTO `question` VALUE()";
+        $query = "INSERT INTO `answer` VALUE(null, '$id', '$answer', '$good')";
+
+        $database = new Database();
+        $database->execute($query);
     }
+
+    public function addQuestion($id, $question)
+    {
+        $query = "INSERT INTO `question` VALUE(null, $id, '$question', NOW())";
+
+        $database = new Database();
+        $database->execute($query);
+    }
+
+    public function addCourse(\Models\Tables\User $user, $categoryid)
+    {
+        $query = "INSERT INTO `course` VALUE (null, '$user->id', $categoryid, NOW())";
+
+        $database = new Database();
+        $database->execute($query);
+    }
+
 }

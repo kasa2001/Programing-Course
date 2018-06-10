@@ -2,8 +2,6 @@
 
 namespace Core;
 
-use Lib\Built\Error\Error;
-
 class Router
 {
 

@@ -11,4 +11,5 @@ class Useranswer
     public $idanswer;
     public $code;
     public $iduser;
+    public $good;
 }

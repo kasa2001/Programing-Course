@@ -6,6 +6,7 @@ namespace Controllers;
 use Core\Controller;
 use Core\DatabaseNullException;
 use Lib\Built\Factory\Factory;
+use Lib\Built\Get\Get;
 use Lib\Built\Post\Post;
 use Lib\Built\Post\PostException;
 use Lib\Built\Server\Server;
@@ -143,12 +144,72 @@ class User extends Controller
         }
     }
 
-    public function checkCourse()
+    public function addCourse()
     {
+
+        try {
+
+            if ($this->session->getDataWithSession('type')  < 1) {
+                $this->server->redirect(403, null, "Forbidden");
+            }
+
+            $model = new \Models\Logic\User();
+            $user = new \Models\Tables\User();
+            $user->setId($this->session->getDataWithSession('id'));
+            $post = new Post();
+            $model->addCourse($user, $post->idcategory);
+
+        } catch (SessionException $e) {
+            $this->server->redirect(403, null, "Forbidden");
+        } catch (PostException $e) {
+
+        } finally {
+            $data['category'] = $model->getCourse();
+            $this->view->display('user/addcourse', $data);
+        }
+
 
     }
 
-    public function addCourse()
+    public function change($params)
+    {
+        $id = $params[0];
+        $model = new \Models\Logic\User();
+
+        try {
+            $post = new Post();
+            $model->change($id, $post->nick, $post->type);
+        } catch (PostException $e) {
+
+        } finally {
+
+            $data['user'] = $model->getUser($id);
+            $data['params'] = $model->getParams();
+
+            $this->view->display("user/change", $data);
+        }
+    }
+
+    public function listOfUsers()
+    {
+        $model = new \Models\Logic\User();
+        $data['users'] = $model->getUsers();
+        $this->view->display("user/listofuser", $data);
+
+    }
+
+    public function renderReport($params)
+    {
+        $type = $params[0];
+        $selected = $params[1];
+
+        $model = new \Models\Logic\User();
+        $data['report'] = $model->getReport($type,$selected);
+
+        $this->view->display("user/render", $data);
+    }
+
+    public function addCategory()
     {
         try {
 
@@ -156,45 +217,65 @@ class User extends Controller
                 $this->server->redirect(403, null, "Forbidden");
             }
 
+            $model = new \Models\Logic\User();
+            $user = new \Models\Tables\User();
+            $user->setId($this->session->getDataWithSession('id'));
+            $post = new Post();
+            echo $post->name;
+            $model->addCategory($post->name);
+
         } catch (SessionException $e) {
             $this->server->redirect(403, null, "Forbidden");
+        } catch (PostException $e) {
+
+        } finally {
+
+            $this->view->display('user/addcategory', null);
         }
-
-        $this->view->display('user/addcourse');
     }
 
-    public function changeTypeUser()
+    public function removeUser()
     {
+        $get = new Get();
 
+        $model = new \Models\Logic\User();
+
+        $model->removeUser($get->id);
+
+        $this->server->redirect(200);
     }
 
-    public function renderReport()
+    public function addQuestion($params)
     {
+        $id = $params[0];
+        $data = ['id' => $id];
+        $model = new \Models\Logic\User();
+        try {
+            $post = new Post();
+            $model->addQuestion($id, $post->quest);
+        } catch (PostException $e) {
 
+        } finally {
+            $this->view->display('user/addquestion', $data);
+        }
     }
 
-    public function addCategory()
+    public function addAnswer($params)
     {
+        $id = $params[0];
+        $data = [
+          'id' => $id
+        ];
+        $model = new \Models\Logic\User();
 
+        try {
+            $post = new Post();
+            $model->addAnswer($id, $post->name, $post->good);
+        } catch (PostException $e) {
+
+        } finally {
+            $this->view->display('user/addanswer', $data);
+        }
     }
 
-    public function addQuestion()
-    {
-
-    }
-
-    public function addAnswer()
-    {
-
-    }
-
-    public function removeCourse()
-    {
-
-    }
-
-    public function removeQuestion()
-    {
-
-    }
 }
